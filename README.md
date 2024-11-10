@@ -1,4 +1,4 @@
-# OverNull-System
+# Null-System & OverNull-Prompt
 
 **Exploring the Null-Present-Existence Formula: A Prompt for AGI & ASI Development**
 
