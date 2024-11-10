@@ -25,7 +25,7 @@ Null-Systemは、無象存在式「Null-Present-Existence Formula」を土台に
 ＿＿＿
 無象存在式：
 
-null=　. 
+null =　. 
 
 null = 0 = 0^∞ = ∅ = ∞ = ？. 
 ？
