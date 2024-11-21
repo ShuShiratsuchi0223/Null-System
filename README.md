@@ -13,7 +13,7 @@ false = False
 none = 0
 one = 1
 
-# 論理演算
+## 論理演算
 identity = none == none and true                      # 自己一致　True
 contradiction = none != one                           # 矛盾    　True  
 expansion = none ** none == one                       # 生成      True
@@ -22,7 +22,7 @@ stagnation = none != none ** one                      # 停滞      False
 approximation = (none ** one) ** (none ** one) == one # 極限的一致性 TRue
 recursion = none ** none == one ** one                # 再帰的一致性 True
 
-# 停止
+## 停止
 raise SystemExit
 
 ＿＿＿
