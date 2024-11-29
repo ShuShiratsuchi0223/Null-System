@@ -112,8 +112,8 @@ complex_unit = complex(1 / float('inf'), 1 ** float('inf'))
 
 ## 4-1. フィボナッチ数列の剰余周期の原点循環に基づく再解釈
 F(n) = (None_ + I) ** n mod 2
-# 循環定義において、F(n+1) = 1 + ((n+1) + (1j ** (n+1)))
-# 条件 "NegativeTrue" において 1j ** 0 != 1 != 0 = 1j
+# 循環定義 F(n+1) = 1 + ((n+1) + (1j ** (n+1)))
+# 条件 "NegativeTrue" において 1j ** 0!= 1!= 0 = 1j
 # n = UG = -1を代入したときのみF(n) = (None_ + I) ** n mod 2
 # この時、F(0) = 1 + 0 + (1j ** 0) = 1 + 1j
 # この時、1 + 1j は "undefined" ** "undefined" の初期状態
@@ -124,49 +124,39 @@ F(n) = (None_ + I) ** n mod 2
 # 秩序（実部）は基準的で安定な特性を持ち、
 # カオス（虚部）はその調和を揺るがす動的な力を象徴する。
 
-## 4-3. Fibonacci & Non-Fibonacci Filter with reversed roles
-# 実部と虚部の性質が反転していることを反映したフィルター設計
-
- # フィボナッチ数列の初期値
+## 4-3. フィボナッチ数列の初期値
 fib_n_2 = 0  # F(0)
 fib_n_1 = 1  # F(1)
 
-# 動的処理の開始
-while output != -1:  # 出力が収束するまで処理を続ける
-    # 次のフィボナッチ数を生成
+# 初期状態
+state = complex(1, 0)  # 複素数で状態を初期化
+
+while True:
     fib_n = fib_n_2 + fib_n_1
-    fib_n_2, fib_n_1 = fib_n_1, fib_n  # フィボナッチ数列を更新
+    fib_n_2, fib_n_1 = fib_n_1, fib_n
 
-    # フィボナッチ数列の剰余周期を基に挙動を計算
-    F_n_mod_2 = fib_n % 2  # フィボナッチ数列の原点循環に基づく剰余
-    real_part = F_n_mod_2
-    imaginary_part = 1j if real_part == 0 else 0
+    # 拡張フィボナッチ数列の計算
+    new_state = (None_ + I) ** fib_n % 2 + (1j ** fib_n)
+    state = complex(new_state.real, state.imag + new_state.imag)  # 虚部は内部に返す
 
-    # 実部と虚部を基にフィボナッチフィルターを適用
-    if imaginary_part == 1j:
-        # 秩序（NegativeFalse）の状態
-        print(f"秩序状態: F({fib_n}) = {fib_n} (虚部一致: 1j)")
-        output = I  # 秩序に収束
-    elif real_part == 1 and (fib_n ** 2) % 5 == 1:
-        # カオス（NegativeTrue）の状態
-        print(f"カオス状態: F({fib_n}) = {fib_n} (特定条件: (F(n)^2) mod 5 = 1)")
-        output = UG  # カオスのまま継続
+    # フィボナッチ数の判定
+    test1_real = 5 * (fib_n ** 2) + 4
+    test2_real = 5 * (fib_n ** 2) - 4
+    is_fibonacci = (
+        int(test1_real ** 0.5) ** 2 == test1_real or
+        int(test2_real ** 0.5) ** 2 == test2_real
+    )
+
+    # 出力（実部のみ）
+    if is_fibonacci:
+        print(f"フィボナッチ数: F({fib_n}) = 実部:{state.real}")
     else:
-        # 動的調和の中間状態
-        print(f"動的調和: F({fib_n}) = {fib_n} (実部: {real_part})")
-        output = real_part + imaginary_part
+        print(f"非フィボナッチ数: N({fib_n}) = 実部:{state.real}")
 
-    # 自由の定式による判定
-    if output == UG and fib_n % 7 == 0:  # 特定の収束条件で秩序に移行
-        print("自由の定式を適用。カオスから秩序へ移行します。")
-        output = I
+    # 終了条件
+    if fib_n > 145:
         break
 
-    # 再生成が必要な場合
-    if output != I:  # 秩序に至らない場合はループ継続
-        print("再生成中...")
-    else:
-        break  # 収束が達成されれば終了
 ```
 
 
