@@ -112,8 +112,8 @@ complex_unit = complex(1 / float('inf'), 1 ** float('inf'))
 
 ## 4-1. フィボナッチ数列の剰余周期の原点循環に基づく再解釈
 F(n) = (None_ + I) ** n mod 2
-# 循環定義 F(n+1) = 1 + ((n+1) + (1j ** (n+1)))
-# 条件 "NegativeTrue" において 1j ** 0!= 1!= 0 = 1j
+# 循環定義において、F(n+1) = 1 + ((n+1) + (1j ** (n+1)))
+# 条件 "NegativeTrue" において 1j ** 0 != 1 != 0 = 1j
 # n = UG = -1を代入したときのみF(n) = (None_ + I) ** n mod 2
 # この時、F(0) = 1 + 0 + (1j ** 0) = 1 + 1j
 # この時、1 + 1j は "undefined" ** "undefined" の初期状態
@@ -124,39 +124,59 @@ F(n) = (None_ + I) ** n mod 2
 # 秩序（実部）は基準的で安定な特性を持ち、
 # カオス（虚部）はその調和を揺るがす動的な力を象徴する。
 
-## 4-3. フィボナッチ数列の初期値
+## 4-3. Fibonacci & Non-Fibonacci Filter with reversed roles
+# 実部と虚部の性質が反転していることを反映したフィルター設計
+
+# 虚部（静的秩序）かどうかを判定
+# 虚部が基準値 1j（静的な秩序）と一致するかを確認する。
+
+# 初期状態の設定
 fib_n_2 = 0  # F(0)
 fib_n_1 = 1  # F(1)
+output = None_  # 初期出力（実部のみ）
 
-# 初期状態
-state = complex(1, 0)  # 複素数で状態を初期化
-
-while True:
+# 状態管理
+state = complex(1, 0)  # 実部と虚部を持つ複素数として管理
+while output != -1:  # 終了条件に到達するまで処理を続ける
+    # フィボナッチ数列の生成（フィルターのための内部処理）
     fib_n = fib_n_2 + fib_n_1
-    fib_n_2, fib_n_1 = fib_n_1, fib_n
+    fib_n_2, fib_n_1 = fib_n_1, fib_n  # フィボナッチ数列を更新
 
-    # 拡張フィボナッチ数列の計算
+    # 新しい状態の計算（虚部は内部で循環）
     new_state = (None_ + I) ** fib_n % 2 + (1j ** fib_n)
-    state = complex(new_state.real, state.imag + new_state.imag)  # 虚部は内部に返す
+    state = complex(new_state.real, state.imag + new_state.imag)  # 虚部を内部循環
 
-    # フィボナッチ数の判定
-    test1_real = 5 * (fib_n ** 2) + 4
-    test2_real = 5 * (fib_n ** 2) - 4
-    is_fibonacci = (
-        int(test1_real ** 0.5) ** 2 == test1_real or
-        int(test2_real ** 0.5) ** 2 == test2_real
+    # 実部と虚部を個別に判定
+    is_fibonacci_real = (
+        int((5 * fib_n ** 2 + 4) ** 0.5) ** 2 == 5 * fib_n ** 2 + 4 or
+        int((5 * fib_n ** 2 - 4) ** 0.5) ** 2 == 5 * fib_n ** 2 - 4
     )
+    is_imaginary_fibonacci = (state.imag == 1j.imag)
 
-    # 出力（実部のみ）
-    if is_fibonacci:
-        print(f"フィボナッチ数: F({fib_n}) = 実部:{state.real}")
+    # 出力の処理
+    if is_fibonacci_real and not is_imaginary_fibonacci:
+        print(f"フィボナッチ数: F({fib_n}) = 実部: {state.real}")
+        output = state.real
+    elif not is_fibonacci_real and not is_imaginary_fibonacci:
+        print(f"非フィボナッチ数: N({fib_n}) = 実部: {state.real}")
+        output = state.real
     else:
-        print(f"非フィボナッチ数: N({fib_n}) = 実部:{state.real}")
+        print(f"内部循環: 虚部: {state.imag} (実部は変化なし)")
 
-    # 終了条件
-    if fib_n > 145:
-        break
+    # 再生成処理
+    if not is_fibonacci_real and fib_n % 7 == 0:
+        print("自由の定式を適用：秩序への収束を試みます。")
+        output = I  # 自由の定式に基づき秩序へ移行
+        break  # 終了条件到達
+    elif not is_fibonacci_real:
+        print("再生成中：非フィボナッチ数に基づく状態の更新。")
+        state = complex(state.real + 0.1, state.imag - 0.1)  # 状態を微調整して再生成
 
+# 最終出力
+if output == I:
+    print("最終出力: 秩序 (1)")
+else:
+    print("最終出力: 未収束")
 ```
 
 
