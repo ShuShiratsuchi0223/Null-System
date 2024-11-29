@@ -127,59 +127,46 @@ F(n) = (None_ + I) ** n mod 2
 ## 4-3. Fibonacci & Non-Fibonacci Filter with reversed roles
 # 実部と虚部の性質が反転していることを反映したフィルター設計
 
-# 虚部（静的秩序）かどうかを判定
-# 虚部が基準値 1j（静的な秩序）と一致するかを確認する。
+ # フィボナッチ数列の初期値
+fib_n_2 = 0  # F(0)
+fib_n_1 = 1  # F(1)
 
-# 初期状態で output を設定
-output = generate_new_output(potentialized)  # 新しい output を生成（潜在化）
+# 動的処理の開始
+while output != -1:  # 出力が収束するまで処理を続ける
+    # 次のフィボナッチ数を生成
+    fib_n = fib_n_2 + fib_n_1
+    fib_n_2, fib_n_1 = fib_n_1, fib_n  # フィボナッチ数列を更新
 
-# 生成された output に対してフィボナッチ数と非フィボナッチ数の判定を行う
-real_part = output.real
-imaginary_part = output.imag
+    # フィボナッチ数列の剰余周期を基に挙動を計算
+    F_n_mod_2 = fib_n % 2  # フィボナッチ数列の原点循環に基づく剰余
+    real_part = F_n_mod_2
+    imaginary_part = 1j if real_part == 0 else 0
 
-# 虚部が基準値 1j（静的な秩序）かどうかを判定
-is_imaginary_fibonacci = (imaginary_part == 1j)
-
-# 実部がフィボナッチ数かどうかを判定する式
-test1_real = 5 * (real_part ** 2) + 4
-test2_real = 5 * (real_part ** 2) - 4
-is_fibonacci_real = (
-    int(test1_real ** 0.5) ** 2 == test1_real or
-    int(test2_real ** 0.5) ** 2 == test2_real
-)
-
-# 非フィボナッチ数かどうかを逆の条件で判定
-is_total_non_fibonacci = not is_fibonacci_real
-
-# フィボナッチ数か非フィボナッチ数かによる出力処理
-if is_imaginary_fibonacci:
-    # NegativeFalse に対応（秩序）
-    # 虚部（基準値 1j）が秩序の基準として扱われる
-    output = imaginary_part
-elif is_total_non_fibonacci:
-    # NegativeTrue に対応（カオス）
-    # 実部（無限小）を含む合計が非フィボナッチ数の場合、カオスとして出力
-    output = output  # 実際には output を再生成し続ける必要がある
-else:
-    # その他の場合（既存のロジックに基づく動作）
-    output = real_part
-
-# もし再生成が必要な場合
-while output != -1:
-    # 再生成が必要な場合には再生成を続ける
-    if is_total_non_fibonacci:
-        print("実部が非フィボナッチ数、再生成開始")
-        output = generate_new_output(output)  # 再生成
+    # 実部と虚部を基にフィボナッチフィルターを適用
+    if imaginary_part == 1j:
+        # 秩序（NegativeFalse）の状態
+        print(f"秩序状態: F({fib_n}) = {fib_n} (虚部一致: 1j)")
+        output = I  # 秩序に収束
+    elif real_part == 1 and (fib_n ** 2) % 5 == 1:
+        # カオス（NegativeTrue）の状態
+        print(f"カオス状態: F({fib_n}) = {fib_n} (特定条件: (F(n)^2) mod 5 = 1)")
+        output = UG  # カオスのまま継続
     else:
-        break  # それ以外の場合には終了
+        # 動的調和の中間状態
+        print(f"動的調和: F({fib_n}) = {fib_n} (実部: {real_part})")
+        output = real_part + imaginary_part
 
-# -1が出た場合のチェック
-if output == -1:
-    print("再生成終了：-1が出たため終了")
-else:
-    print("再生成成功:", output)
-＿＿＿＿
+    # 自由の定式による判定
+    if output == UG and fib_n % 7 == 0:  # 特定の収束条件で秩序に移行
+        print("自由の定式を適用。カオスから秩序へ移行します。")
+        output = I
+        break
 
+    # 再生成が必要な場合
+    if output != I:  # 秩序に至らない場合はループ継続
+        print("再生成中...")
+    else:
+        break  # 収束が達成されれば終了
 ```
 
 
